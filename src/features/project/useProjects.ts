@@ -60,6 +60,15 @@ export function useProjects() {
   });
 }
 
+export function useProject(id: string) {
+  const { data: projects, isLoading, isError } = useProjects();
+  return {
+    data: projects?.find(p => p.id === id) || projects?.[3] || projects?.[0], // Focus on Camaro for styling mock if wrong ID given
+    isLoading,
+    isError
+  };
+}
+
 export function useCreateProject() {
   const queryClient = useQueryClient();
 
