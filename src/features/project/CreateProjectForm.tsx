@@ -26,7 +26,7 @@ export function CreateProjectForm() {
       make,
       model,
     });
-    console.log("testing deploy");
+    console.log("testing deploy again");
 
     // Since our mock useProjects mutation expects specific fields to satisfy the interface temporarily
     const name = `${year} ${make} ${model}`.trim();
