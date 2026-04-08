@@ -9,7 +9,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
         <div className="px-5 h-16 flex items-center justify-between">
           <Link href="/dashboard" className="font-bold flex items-center gap-2 hover:opacity-80 transition-opacity text-[#f08c5c]">
             <Wrench className="w-5 h-5 -rotate-12" />
-            <span className="tracking-[0.15em] text-sm uppercase">Auto_Lab</span>
+            <span className="tracking-[0.15em] text-sm uppercase">Project Cars Garage</span>
           </Link>
           {/* <div className="flex items-center gap-5">
             <button className="text-zinc-400 hover:text-white transition-colors">
@@ -22,7 +22,7 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
         </div>
       </header>
 
-      <main className="flex-1 w-full relative pb-28">
+      <main className="flex-1 w-full relative pb-28 px-4 pt-4">
         {children}
       </main>
 
@@ -32,16 +32,16 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
             <Wrench className="w-5 h-5 -rotate-12 group-hover:scale-110 transition-transform" />
             <span className="text-[10px] uppercase font-bold tracking-widest mt-1">Jobs</span>
           </Link>
-          <Link href="#" className="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors group">
+          {/* <Link href="#" className="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors group">
             <Layers className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="text-[10px] uppercase font-bold tracking-widest mt-1">Build Feed</span>
-          </Link>
+          </Link> */}
           <Link href="#" className="flex flex-col items-center gap-1 text-zinc-500 hover:text-zinc-300 transition-colors group">
             <Briefcase className="w-5 h-5 group-hover:scale-110 transition-transform" />
             <span className="text-[10px] uppercase font-bold tracking-widest mt-1">Clients</span>
           </Link>
         </div>
-        <div className="absolute top-0 left-0 w-1/3 h-[2px]">
+        <div className="absolute top-0 left-0 w-1/2 h-[2px]">
           <div className="w-16 h-full bg-[#f08c5c] mx-auto rounded-b shadow-[0_2px_8px_rgba(240,140,92,0.5)]" />
         </div>
       </nav>

@@ -2,7 +2,7 @@
 
 import { useProjects } from './useProjects';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Car } from 'lucide-react';
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -36,28 +36,27 @@ export function ProjectList() {
         </h2>
       </div>
 
-      <div className="flex items-center mb-8">
-        <div className="flex flex-col border-l-[3px] border-[#f08c5c] pl-3">
-          <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-[0.2em] mb-1">Capacity</span>
-          <span className="text-white text-2xl font-bold leading-none">14 <span className="text-zinc-400 text-lg">/ 20</span></span>
-        </div>
-      </div>
+
 
       <div className="grid gap-6">
         {projects?.map((project) => (
           <Link key={project.id} href={`/projects/${project.id}`} className="bg-[#1c1c1e] rounded-sm overflow-hidden flex flex-col group cursor-pointer transition-colors shadow-2xl relative">
-            {project.imageUrl && (
-              <div className="h-48 overflow-hidden relative w-full bg-black">
+            <div className="h-48 overflow-hidden relative w-full bg-[#111] border-b border-zinc-800/50">
+              {project.imageUrl ? (
                 <img 
                   src={project.imageUrl} 
                   alt={project.name} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[600ms] opacity-90" 
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e] via-transparent to-transparent opacity-60"></div>
-              </div>
-            )}
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Car className="w-16 h-16 text-zinc-800 opacity-60 group-hover:scale-110 transition-transform duration-[600ms]" strokeWidth={1.5} />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e] via-[#1c1c1e]/40 to-transparent"></div>
+            </div>
             
-            <div className={`p-5 flex flex-col relative z-10 bg-[#1c1c1e] ${project.imageUrl ? '-mt-2' : ''}`}>
+            <div className="p-5 flex flex-col relative z-10 bg-[#1c1c1e] -mt-5">
               <h3 className="text-xl font-bold text-white mb-3 tracking-tight">{project.name}</h3>
               
               {/* Status Badge */}

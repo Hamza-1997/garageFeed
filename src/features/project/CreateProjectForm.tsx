@@ -3,7 +3,7 @@
 import { useCreateProject } from "./useProjects";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { User, CarFront, ArrowRight, ShieldCheck, Cloud } from "lucide-react";
+import { User, CarFront, ArrowRight, ShieldCheck, Cloud, Camera, X } from "lucide-react";
 
 export function CreateProjectForm() {
   const [clientName, setClientName] = useState("");
@@ -11,9 +11,20 @@ export function CreateProjectForm() {
   const [year, setYear] = useState("");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
+  const [status, setStatus] = useState<"IN ASSEMBLY" | "WAITING FOR PARTS" | "METAL WORK" | "QC DELAYED">("WAITING FOR PARTS");
+  const [imageUrl, setImageUrl] = useState("");
 
   const createProject = useCreateProject();
   const router = useRouter();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Mocking upload by creating local Object URL for instant preview
+      const url = URL.createObjectURL(file);
+      setImageUrl(url);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +46,13 @@ export function CreateProjectForm() {
     if (!name) return; // Prevent empty names
 
     createProject.mutate(
-      { name, description },
+      { 
+        name, 
+        description,
+        client: clientName || "Unknown Client",
+        status,
+        imageUrl,
+      },
       {
         onSuccess: () => {
           router.push("/dashboard");
@@ -158,6 +175,52 @@ export function CreateProjectForm() {
                 className="w-full bg-[#111111] border-none h-[52px] text-zinc-300 px-4 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-[#93c5d6]/50 rounded-[2px]"
                 required
               />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-[0.15em] mb-2.5">
+                Initial Status
+              </label>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as any)}
+                className="w-full bg-[#111111] border-none h-[52px] text-zinc-300 px-4 focus:outline-none focus:ring-1 focus:ring-[#93c5d6]/50 rounded-[2px] appearance-none"
+              >
+                <option value="WAITING FOR PARTS">Waiting For Parts</option>
+                <option value="IN ASSEMBLY">In Assembly</option>
+                <option value="METAL WORK">Metal Work</option>
+                <option value="QC DELAYED">QC Delayed</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col mt-2">
+              <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-[0.15em] mb-2.5">
+                Hero Photo (Optional)
+              </label>
+
+              {imageUrl ? (
+                <div className="relative h-[180px] bg-black rounded-[2px] overflow-hidden border border-[#2a2a2c]">
+                  <img src={imageUrl} alt="Uploaded preview" className="w-full h-full object-cover opacity-80" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="absolute top-2 right-2 w-7 h-7 bg-[#990f02] flex items-center justify-center rounded-[2px] shadow-md hover:bg-red-700"
+                  >
+                    <X className="w-4 h-4 text-white" strokeWidth={3} />
+                  </button>
+                </div>
+              ) : (
+                <label className="border border-dashed border-zinc-700 bg-[#111111] flex flex-col items-center justify-center h-[120px] rounded-[2px] cursor-pointer hover:bg-zinc-900/50 transition-colors">
+                  <Camera className="w-5 h-5 text-zinc-500 mb-2" />
+                  <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Select Memory/Upload</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              )}
             </div>
           </div>
         </div>

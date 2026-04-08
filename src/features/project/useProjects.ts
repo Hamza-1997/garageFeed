@@ -38,15 +38,6 @@ export function useProjects() {
           imageUrl: 'https://thumbs.dreamstime.com/b/fishermen-fj-oman-toyota-fj-used-fishermen-to-tow-boats-sea-185229373.jpg?auto=format&fit=crop&q=80&w=800'
         },
         { 
-          id: '3', 
-          name: 'Land Rover Defender 90', 
-          description: 'Rust repair and fabrication.', 
-          createdAt: '2023-10-28T00:00:00Z',
-          status: 'METAL WORK',
-          client: 'James Thorne',
-          imageUrl: ''
-        },
-        { 
           id: '4', 
           name: '1969 Chevy Camaro SS', 
           description: 'Final inspection failed, awaiting rework.', 
@@ -54,6 +45,15 @@ export function useProjects() {
           status: 'QC DELAYED',
           client: 'William Chen',
           imageUrl: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=800'
+        },
+               { 
+          id: '3', 
+          name: 'Land Rover Defender 90', 
+          description: 'Rust repair and fabrication.', 
+          createdAt: '2023-10-28T00:00:00Z',
+          status: 'METAL WORK',
+          client: 'James Thorne',
+          imageUrl: ''
         },
       ] as Project[];
     },
@@ -73,17 +73,14 @@ export function useCreateProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newProject: Omit<Project, 'id' | 'createdAt' | 'status' | 'client' | 'imageUrl'>) => {
+    mutationFn: async (newProject: Omit<Project, 'id' | 'createdAt'>) => {
       // const response = await api.post('/projects', newProject);
       // return response.data;
       console.log('Project created:', newProject);
       return {
-        ...newProject,
         id: Math.random().toString(36).substring(7),
         createdAt: new Date().toISOString(),
-        status: 'WAITING FOR PARTS',
-        client: 'Unknown Client',
-        imageUrl: 'https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=80&w=800',
+        ...newProject,
       } as Project;
     },
     onSuccess: () => {
