@@ -11,14 +11,14 @@ export default function ManagerLayout({ children }: { children: React.ReactNode 
             <Wrench className="w-5 h-5 -rotate-12" />
             <span className="tracking-[0.15em] text-sm uppercase">Auto_Lab</span>
           </Link>
-          <div className="flex items-center gap-5">
+          {/* <div className="flex items-center gap-5">
             <button className="text-zinc-400 hover:text-white transition-colors">
               <Search className="w-5 h-5" />
             </button>
             <div className="w-8 h-8 rounded-full bg-zinc-800 overflow-hidden ring-2 ring-zinc-800">
               <img src="https://i.pravatar.cc/150?img=11" alt="User" className="w-full h-full object-cover" />
             </div>
-          </div>
+          </div> */}
         </div>
       </header>
 

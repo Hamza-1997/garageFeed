@@ -22,36 +22,48 @@ export default function ProjectDetailPage({
     <div className="pb-[120px] pt-1">
       
       {/* Project Card */}
-      <div className="bg-[#1c1c1e] p-6 relative overflow-hidden flex flex-col mb-4 shadow-lg rounded-sm border border-[#2a2a2c]">
-        {/* Faded car icon backdrop */}
-        <div className="absolute right-[-10px] top-4 text-zinc-800/40">
-          <svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H12c-.6 0-1.2.3-1.6.8L8.3 10S5.6 10.6 3.8 11.1C3.1 11.3 2.5 12 2.5 12.9V16c0 .6.4 1 1 1h2c0 1.7 1.3 3 3 3s3-1.3 3-3h5c0 1.7 1.3 3 3 3s3-1.3 3-3z"/></svg>
-        </div>
-
-        <div className="flex items-center gap-4 mb-4 relative z-10 w-fit">
-          <div className="bg-[#ffcc00] text-black px-2 py-0.5 rounded-[2px] text-[8px] font-black uppercase tracking-widest">
-            {project.status.replace('_', ' ')}
+      <div className="bg-[#1c1c1e] relative overflow-hidden flex flex-col mb-4 shadow-lg rounded-sm border border-[#2a2a2c]">
+        
+        {project.imageUrl && (
+          <div className="w-full h-48 relative">
+            <img src={project.imageUrl} alt={project.name} className="w-full h-full object-cover opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1c1c1e] via-[#1c1c1e]/60 to-transparent" />
           </div>
-          <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-widest">
-            JOB_ID: #{resolvedParams.id}21-X
-          </span>
-        </div>
+        )}
 
-        <h1 className="text-3xl font-bold text-[#ffbfa3] mb-3 tracking-tight relative z-10 leading-[1.1]">
-          {project.name.toUpperCase()}
-        </h1>
-        <p className="text-[10px] text-zinc-400 font-bold tracking-[0.15em] leading-[1.6] uppercase mb-8 max-w-[80%] relative z-10">
-          COMPLETE ENGINE OVERHAUL & FRAME RESTORATION
-        </p>
+        <div className={`p-6 relative z-10 flex flex-col flex-1 ${project.imageUrl ? '-mt-24' : ''}`}>
+          {/* Faded car icon backdrop */}
+          {!project.imageUrl && (
+            <div className="absolute right-[-10px] top-4 text-zinc-800/40">
+              <svg xmlns="http://www.w3.org/2000/svg" width="140" height="140" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H12c-.6 0-1.2.3-1.6.8L8.3 10S5.6 10.6 3.8 11.1C3.1 11.3 2.5 12 2.5 12.9V16c0 .6.4 1 1 1h2c0 1.7 1.3 3 3 3s3-1.3 3-3h5c0 1.7 1.3 3 3 3s3-1.3 3-3z"/></svg>
+            </div>
+          )}
 
-        <div className="grid grid-cols-2 gap-4 mt-auto relative z-10">
-          <div className="flex flex-col">
-            <span className="text-zinc-500 text-[8px] uppercase font-bold tracking-[0.2em] mb-1.5">VIN Reference</span>
-            <span className="text-zinc-200 text-xs font-mono uppercase">124379N500001</span>
+          <div className="flex items-center gap-4 mb-4 relative z-10 w-fit">
+            <div className="bg-[#ffcc00] text-black px-2 py-0.5 rounded-[2px] text-[8px] font-black uppercase tracking-widest shadow-[0_0_8px_rgba(255,204,0,0.4)]">
+              {project.status.replace('_', ' ')}
+            </div>
+            <span className="text-zinc-400 font-mono text-[9px] uppercase tracking-widest drop-shadow-md">
+              JOB_ID: #{resolvedParams.id}21-X
+            </span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-zinc-500 text-[8px] uppercase font-bold tracking-[0.2em] mb-1.5">Est. Completion</span>
-            <span className="text-zinc-200 text-xs font-mono uppercase">OCT 24, 2023</span>
+
+          <h1 className="text-3xl font-bold text-[#ffbfa3] mb-3 tracking-tight relative z-10 leading-[1.1] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            {project.name.toUpperCase()}
+          </h1>
+          <p className="text-[10px] text-zinc-300 font-bold tracking-[0.15em] leading-[1.6] uppercase mb-8 max-w-[80%] relative z-10 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+            COMPLETE ENGINE OVERHAUL & FRAME RESTORATION
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 mt-auto relative z-10">
+            <div className="flex flex-col">
+              <span className="text-zinc-400 text-[8px] uppercase font-bold tracking-[0.2em] mb-1.5 drop-shadow-md">VIN Reference</span>
+              <span className="text-white text-xs font-mono uppercase drop-shadow-md">124379N500001</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-zinc-400 text-[8px] uppercase font-bold tracking-[0.2em] mb-1.5 drop-shadow-md">Est. Completion</span>
+              <span className="text-white text-xs font-mono uppercase drop-shadow-md">OCT 24, 2023</span>
+            </div>
           </div>
         </div>
       </div>

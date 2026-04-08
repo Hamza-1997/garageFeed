@@ -45,7 +45,7 @@ export function ProjectList() {
 
       <div className="grid gap-6">
         {projects?.map((project) => (
-          <div key={project.id} className="bg-[#1c1c1e] rounded-sm overflow-hidden flex flex-col group cursor-pointer transition-colors shadow-2xl relative">
+          <Link key={project.id} href={`/projects/${project.id}`} className="bg-[#1c1c1e] rounded-sm overflow-hidden flex flex-col group cursor-pointer transition-colors shadow-2xl relative">
             {project.imageUrl && (
               <div className="h-48 overflow-hidden relative w-full bg-black">
                 <img 
@@ -78,7 +78,7 @@ export function ProjectList() {
                 </div>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
 

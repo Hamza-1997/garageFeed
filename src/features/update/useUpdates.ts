@@ -24,7 +24,7 @@ export function useProjectUpdates(projectId: string) {
           title: 'Block Degreasing & Initial Inspection',
           text: 'Engine block has been fully stripped and hot-tanked. Magnetic particle inspection (Magnaflux) confirmed zero stress fractures on the main webbing. Proceeding with bore measurements.',
           images: [
-            'https://images.unsplash.com/photo-1627063162125-96263f9185a5?auto=format&fit=crop&q=80&w=400',
+            // 'https://images.unsplash.com/photo-1627063162125-96263f9185a5?auto=format&fit=crop&q=80&w=400',
             'https://images.pexels.com/photos/190538/pexels-photo-190538.jpeg?auto=format&fit=crop&q=80&w=400'
           ],
           createdAt: new Date().toISOString(),
