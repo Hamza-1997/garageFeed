@@ -1,0 +1,84 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Workshop {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  users     User[]
+  jobs      Job[]
+}
+
+model User {
+  id           String    @id @default(cuid())
+  workshopId   String
+  workshop     Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  name         String
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(STAFF)
+  createdAt    DateTime  @default(now())
+  updates      Update[]
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model Job {
+  id            String     @id @default(cuid())
+  workshopId    String
+  workshop      Workshop   @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  projectTitle  String
+  clientName    String
+  clientPhone   String
+  year          String
+  make          String
+  model         String
+  workRequired  String?
+  notes         String?
+  vinRef        String?
+  estCompletion DateTime?
+  status        JobStatus  @default(WAITING)
+  imageUrl      String?
+  clientToken   String     @unique @default(cuid())
+  createdAt     DateTime   @default(now())
+  updates       Update[]
+}
+
+enum JobStatus {
+  WAITING
+  IN_ASSEMBLY
+  WAITING_FOR_PARTS
+  METAL_WORK
+  QC
+  COMPLETED
+}
+
+model Update {
+  id         String     @id @default(cuid())
+  jobId      String
+  postedById String
+  title      String
+  message    String
+  mediaUrl   String?
+  costLogged Decimal?
+  costNote   String?
+  visibility Visibility @default(CLIENT)
+  createdAt  DateTime   @default(now())
+  job        Job        @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  postedBy   User       @relation(fields: [postedById], references: [id])
+}
+
+enum Visibility {
+  CLIENT
+  INTERNAL
+}
