@@ -24,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#0a0a0a] text-zinc-50 flex flex-col relative max-w-[480px] mx-auto shadow-2xl shadow-black/50 overflow-x-hidden`}
       >
         <ReactQueryProvider>
