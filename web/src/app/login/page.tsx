@@ -25,8 +25,7 @@ export default function LoginPage() {
       
       localStorage.setItem("token", token);
       
-      // Redirect to dashboard/projects
-      router.push("/projects");
+      router.push("/dashboard");
     } catch (err: any) {
       setError(err.response?.data?.message || "Something went wrong. Please try again.");
     } finally {
