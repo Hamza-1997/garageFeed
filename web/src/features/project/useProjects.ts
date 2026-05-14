@@ -15,47 +15,18 @@ export function useProjects() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
-      // Mocking API call for frontend-only
-      // const response = await api.get('/projects');
-      // return response.data;
-      return [
-        { 
-          id: '1', 
-          name: '1967 Mustang Fastback', 
-          description: 'Full restoration job.', 
-          createdAt: '2023-10-12T00:00:00Z',
-          status: 'IN ASSEMBLY',
-          client: 'Robert Sterling',
-          imageUrl: 'https://images.pexels.com/photos/34067953/pexels-photo-34067953.jpeg?auto=format&fit=crop&q=80&w=800'
-        },
-        { 
-          id: '2', 
-          name: 'Jeep FJ40', 
-          description: 'Engine rebuild and paint correction.', 
-          createdAt: '2023-11-03T00:00:00Z',
-          status: 'WAITING FOR PARTS',
-          client: 'Elena Rossi',
-          imageUrl: 'https://thumbs.dreamstime.com/b/fishermen-fj-oman-toyota-fj-used-fishermen-to-tow-boats-sea-185229373.jpg?auto=format&fit=crop&q=80&w=800'
-        },
-        { 
-          id: '4', 
-          name: '1969 Chevy Camaro SS', 
-          description: 'Final inspection failed, awaiting rework.', 
-          createdAt: '2023-11-10T00:00:00Z',
-          status: 'QC DELAYED',
-          client: 'William Chen',
-          imageUrl: 'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=800'
-        },
-               { 
-          id: '3', 
-          name: 'Land Rover Defender 90', 
-          description: 'Rust repair and fabrication.', 
-          createdAt: '2023-10-28T00:00:00Z',
-          status: 'METAL WORK',
-          client: 'James Thorne',
-          imageUrl: ''
-        },
-      ] as Project[];
+      const response = await api.get('/api/jobs');
+      const jobs = response.data.data;
+      
+      return jobs.map((job: any) => ({
+        id: job.id,
+        name: job.projectTitle,
+        description: job.workRequired || '',
+        createdAt: job.createdAt,
+        status: job.status.replace(/_/g, ' '),
+        client: job.clientName,
+        imageUrl: job.imageUrl || ''
+      })) as Project[];
     },
   });
 }
