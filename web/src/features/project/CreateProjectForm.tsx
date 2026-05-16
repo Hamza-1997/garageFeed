@@ -11,7 +11,8 @@ export function CreateProjectForm() {
   const [year, setYear] = useState("");
   const [make, setMake] = useState("");
   const [model, setModel] = useState("");
-  const [status, setStatus] = useState<"IN ASSEMBLY" | "WAITING FOR PARTS" | "METAL WORK" | "QC DELAYED">("WAITING FOR PARTS");
+  const [workRequired, setWorkRequired] = useState("");
+  const [status, setStatus] = useState<"WAITING" | "IN_ASSEMBLY" | "WAITING_FOR_PARTS" | "METAL_WORK" | "QC" | "COMPLETED">("WAITING");
   const [imageUrl, setImageUrl] = useState("");
 
   const createProject = useCreateProject();
@@ -29,27 +30,18 @@ export function CreateProjectForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // As per requirement: "will add the backend later, for now use placeholders for submitting function or maybe log the data"
-    console.log("Registering NEW BUILD:", {
-      clientName,
-      phoneNumber,
-      year,
-      make,
-      model,
-    });
-    console.log("testing deploy again");
-
-    // Since our mock useProjects mutation expects specific fields to satisfy the interface temporarily
-    const name = `${year} ${make} ${model}`.trim();
-    const description = `Phone: ${phoneNumber}\nClient: ${clientName}`;
-
-    if (!name) return; // Prevent empty names
+    const projectTitle = `${year} ${make} ${model}`.trim();
+    if (!projectTitle) return;
 
     createProject.mutate(
       { 
-        name, 
-        description,
-        client: clientName || "Unknown Client",
+        projectTitle,
+        clientName: clientName || "Unknown Client",
+        clientPhone: phoneNumber,
+        year,
+        make,
+        model,
+        workRequired,
         status,
         imageUrl,
       },
@@ -110,13 +102,13 @@ export function CreateProjectForm() {
 
             <div className="flex flex-col">
               <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-[0.15em] mb-2.5">
-                Phone Number
+                Phone Number (Digits Only)
               </label>
               <input
-                type="tel"
+                type="number"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+1 (555) 000-0000"
+                placeholder="5550000000"
                 className="w-full bg-[#111111] border-none h-[52px] text-zinc-300 px-4 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-[#ffbfa3]/50 rounded-[2px]"
               />
             </div>
@@ -176,6 +168,18 @@ export function CreateProjectForm() {
                 required
               />
             </div>
+            
+            <div className="flex flex-col">
+              <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-[0.15em] mb-2.5">
+                Project Description / Work Required
+              </label>
+              <textarea
+                value={workRequired}
+                onChange={(e) => setWorkRequired(e.target.value)}
+                placeholder="e.g. Full frame-off restoration, engine swap to Coyote 5.0"
+                className="w-full bg-[#111111] border-none h-[100px] py-4 text-zinc-300 px-4 placeholder:text-zinc-700 focus:outline-none focus:ring-1 focus:ring-[#93c5d6]/50 rounded-[2px] resize-none"
+              />
+            </div>
 
             <div className="flex flex-col">
               <label className="text-zinc-500 text-[9px] uppercase font-bold tracking-[0.15em] mb-2.5">
@@ -186,10 +190,12 @@ export function CreateProjectForm() {
                 onChange={(e) => setStatus(e.target.value as any)}
                 className="w-full bg-[#111111] border-none h-[52px] text-zinc-300 px-4 focus:outline-none focus:ring-1 focus:ring-[#93c5d6]/50 rounded-[2px] appearance-none"
               >
-                <option value="WAITING FOR PARTS">Waiting For Parts</option>
-                <option value="IN ASSEMBLY">In Assembly</option>
-                <option value="METAL WORK">Metal Work</option>
-                <option value="QC DELAYED">QC Delayed</option>
+                <option value="WAITING">Waiting in Queue</option>
+                <option value="WAITING_FOR_PARTS">Waiting For Parts</option>
+                <option value="IN_ASSEMBLY">In Assembly</option>
+                <option value="METAL_WORK">Metal Work</option>
+                <option value="QC">Quality Control / Final Inspection</option>
+                <option value="COMPLETED">Completed</option>
               </select>
             </div>
 
@@ -232,9 +238,9 @@ export function CreateProjectForm() {
             className="w-full h-[88px] bg-[#fdbda1] text-[#541b0b] font-bold tracking-[0.25em] uppercase flex items-center justify-center group hover:bg-white transition-colors duration-300 px-6 relative"
           >
             <span className="text-[13px] leading-[1.6] text-center mt-1">
-              Register New
-              <br />
-              Build
+              {createProject.isPending ? "Registering..." : "Register New"}
+              {!createProject.isPending && <br />}
+              {!createProject.isPending && "Build"}
             </span>
             <ArrowRight
               className="w-5 h-5 absolute right-6 group-hover:translate-x-1 transition-transform"

@@ -44,15 +44,9 @@ export function useCreateProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (newProject: Omit<Project, 'id' | 'createdAt'>) => {
-      // const response = await api.post('/projects', newProject);
-      // return response.data;
-      console.log('Project created:', newProject);
-      return {
-        id: Math.random().toString(36).substring(7),
-        createdAt: new Date().toISOString(),
-        ...newProject,
-      } as Project;
+    mutationFn: async (newProject: any) => {
+      const response = await api.post('/api/jobs', newProject);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
