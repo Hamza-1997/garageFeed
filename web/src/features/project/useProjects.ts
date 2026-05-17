@@ -32,12 +32,25 @@ export function useProjects() {
 }
 
 export function useProject(id: string) {
-  const { data: projects, isLoading, isError } = useProjects();
-  return {
-    data: projects?.find(p => p.id === id) || projects?.[3] || projects?.[0], // Focus on Camaro for styling mock if wrong ID given
-    isLoading,
-    isError
-  };
+  return useQuery({
+    queryKey: ['project', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const response = await api.get(`/api/jobs/${id}`);
+      const job = response.data.data;
+      if (!job) return null;
+      return {
+        id: job.id,
+        name: job.projectTitle,
+        description: job.workRequired || '',
+        createdAt: job.createdAt,
+        status: job.status.replace(/_/g, ' '),
+        client: job.clientName,
+        imageUrl: job.imageUrl || ''
+      } as Project;
+    },
+    enabled: !!id,
+  });
 }
 
 export function useCreateProject() {

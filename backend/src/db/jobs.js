@@ -12,7 +12,30 @@ const create = async (data) => {
   });
 };
 
+const getById = async (id, workshopId) => {
+  return await prisma.job.findFirst({
+    where: { id, workshopId },
+    include: {
+      updates: {
+        orderBy: { createdAt: 'desc' },
+        include: { postedBy: true }
+      }
+    }
+  });
+};
+
+const addUpdate = async (jobId, data) => {
+  return await prisma.update.create({
+    data: {
+      jobId,
+      ...data
+    }
+  });
+};
+
 module.exports = {
   getAll,
   create,
+  getById,
+  addUpdate,
 };
