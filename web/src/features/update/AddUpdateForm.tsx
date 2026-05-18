@@ -12,31 +12,43 @@ interface AddUpdateFormProps {
 }
 
 export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
+  const [title, setTitle] = useState('');
   const [text, setText] = useState('');
+  const [cost, setCost] = useState('');
   const [visibility, setVisibility] = useState<'CLIENT' | 'INTERNAL'>('CLIENT');
-  const [images, setImages] = useState<string[]>([
-    'https://images.unsplash.com/photo-1627063162125-96263f9185a5?auto=format&fit=crop&q=80&w=400',
-    'https://images.pexels.com/photos/190538/pexels-photo-190538.jpeg?auto=format&fit=crop&q=80&w=400'
-  ]);
+  const [images, setImages] = useState<string[]>([]);
 
   const { data: project } = useProject(projectId);
   const addUpdate = useAddUpdate();
   const router = useRouter();
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImages([...images, url]);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!text.trim() && images.length === 0) return;
+    if (!title.trim() || (!text.trim() && images.length === 0)) return;
 
     addUpdate.mutate(
       { 
         projectId, 
-        title: 'Job Progress Update',
+        title,
         text: text || 'Uploaded photo update.',
-        images: images.length > 0 ? images : undefined 
+        images: images.length > 0 ? images : undefined,
+        cost: cost || undefined,
+        visibility
       },
       {
         onSuccess: () => {
           setText('');
+          setTitle('');
+          setCost('');
+          setImages([]);
           router.push(`/projects/${projectId}`);
         },
       }
@@ -100,8 +112,21 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
           </div>
         </div>
 
+        {/* Title Input */}
+        <div className="flex flex-col mb-2">
+          <span className="text-zinc-500 text-[8px] uppercase font-bold tracking-[0.2em] mb-2">Update Title</span>
+          <input
+            type="text"
+            placeholder="e.g. Body paint completed"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full h-12 bg-[#161618] border-none text-[13px] text-zinc-300 px-5 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-700 rounded-sm"
+            required
+          />
+        </div>
+
         {/* Text Area Card */}
-        <div className="flex items-end justify-between mb-2">
+        <div className="flex items-end justify-between mb-2 mt-4">
           <span className="text-zinc-500 text-[8px] uppercase font-bold tracking-[0.2em]">Technical Notes & Progress</span>
           <button type="button" className="bg-[#ffcc00] text-black h-6 px-3 flex items-center gap-1.5 rounded-[2px] shadow-md hover:bg-yellow-400">
             <Wand2 className="w-3 h-3" strokeWidth={3} />
@@ -116,11 +141,30 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
           className="w-full h-40 bg-[#161618] border-none text-[13px] text-zinc-300 p-5 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-700 rounded-sm resize-none"
         />
 
+        {/* Cost Input (Optional) */}
+        <div className="flex flex-col mt-4 mb-2">
+          <span className="text-zinc-500 text-[8px] uppercase font-bold tracking-[0.2em] mb-2">Logged Cost (Optional)</span>
+          <input
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+            value={cost}
+            onChange={(e) => setCost(e.target.value)}
+            className="w-full h-12 bg-[#161618] border-none text-[13px] text-zinc-300 px-5 placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-700 rounded-sm"
+          />
+        </div>
+
         {/* Photo Upload Area */}
-        <div className="border border-dashed border-zinc-700 bg-[#161618] flex flex-col items-center justify-center h-48 rounded-[2px] cursor-pointer hover:bg-zinc-900 transition-colors">
+        <label className="border border-dashed border-zinc-700 bg-[#161618] flex flex-col items-center justify-center h-48 rounded-[2px] cursor-pointer hover:bg-zinc-900 transition-colors mt-4">
           <Camera className="w-6 h-6 text-zinc-500 mb-3" />
           <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Upload Photo</span>
-        </div>
+          <input 
+            type="file" 
+            accept="image/*" 
+            className="hidden" 
+            onChange={handleImageUpload}
+          />
+        </label>
 
         {/* Mock Uploaded Images */}
         {images.length > 0 && (
@@ -147,11 +191,13 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
             disabled={addUpdate.isPending}
             className="w-full h-[64px] bg-[#fdbda1] text-[#541b0b] font-black tracking-[0.2em] uppercase flex items-center justify-center gap-2 group hover:bg-white transition-colors duration-300 rounded-[2px]"
           >
-            <span className="text-[12px] leading-none mt-[2px]">Post Update</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
-              <path d="M5 12h14"></path>
-              <path d="M12 5l7 7-7 7"></path>
-            </svg>
+            <span className="text-[12px] leading-none mt-[2px]">{addUpdate.isPending ? 'Posting...' : 'Post Update'}</span>
+            {!addUpdate.isPending && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
+                <path d="M5 12h14"></path>
+                <path d="M12 5l7 7-7 7"></path>
+              </svg>
+            )}
           </button>
           
           <div className="text-center mt-4">
