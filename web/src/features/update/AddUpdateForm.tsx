@@ -25,8 +25,12 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImages([...images, url]);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImages([...images, base64String]);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
