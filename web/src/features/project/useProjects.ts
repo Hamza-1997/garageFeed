@@ -6,9 +6,10 @@ export interface Project {
   name: string;
   description: string;
   createdAt: string;
-  status: 'IN ASSEMBLY' | 'WAITING FOR PARTS' | 'METAL WORK' | 'QC DELAYED';
+  status: string;
   client: string;
   imageUrl: string;
+  clientToken?: string;
 }
 
 export function useProjects() {
@@ -25,7 +26,8 @@ export function useProjects() {
         createdAt: job.createdAt,
         status: job.status.replace(/_/g, ' '),
         client: job.clientName,
-        imageUrl: job.imageUrl || ''
+        imageUrl: job.imageUrl || '',
+        clientToken: job.clientToken,
       })) as Project[];
     },
   });
@@ -46,7 +48,8 @@ export function useProject(id: string) {
         createdAt: job.createdAt,
         status: job.status.replace(/_/g, ' '),
         client: job.clientName,
-        imageUrl: job.imageUrl || ''
+        imageUrl: job.imageUrl || '',
+        clientToken: job.clientToken,
       } as Project;
     },
     enabled: !!id,
@@ -64,5 +67,42 @@ export function useCreateProject() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
+  });
+}
+
+export function useClientJob(token: string) {
+  return useQuery({
+    queryKey: ['clientJob', token],
+    queryFn: async () => {
+      if (!token) return null;
+      const response = await api.get(`/api/client/jobs/${token}`);
+      const job = response.data.data;
+      if (!job) return null;
+      
+      const mappedUpdates = job.updates?.map((u: any) => ({
+        id: u.id,
+        projectId: u.jobId,
+        title: u.title,
+        text: u.message,
+        images: u.mediaUrl ? [u.mediaUrl] : undefined,
+        cost: u.costLogged ? `$${parseFloat(u.costLogged).toFixed(2)}` : undefined,
+        createdAt: u.createdAt,
+      })) || [];
+
+      return {
+        project: {
+          id: job.id,
+          name: job.projectTitle,
+          description: job.workRequired || '',
+          createdAt: job.createdAt,
+          status: job.status.replace(/_/g, ' '),
+          client: job.clientName,
+          imageUrl: job.imageUrl || '',
+        } as Project,
+        updates: mappedUpdates,
+        workshopName: job.workshop?.name || 'Workshop',
+      };
+    },
+    enabled: !!token,
   });
 }

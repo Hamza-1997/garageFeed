@@ -168,7 +168,16 @@ export default function ProjectDetailPage({
           </div>
 
           <div className="grid grid-cols-3 gap-2 h-[52px]">
-            <button className="bg-[#313133] hover:bg-zinc-700 transition-colors rounded-sm flex flex-col items-center justify-center gap-1.5 border border-zinc-700">
+            <button 
+              onClick={() => {
+                if (project?.clientToken) {
+                  const magicLink = `${window.location.origin}/client/${project.clientToken}`;
+                  navigator.clipboard.writeText(magicLink);
+                  alert('Magic Link Copied! Send this to the client.');
+                }
+              }}
+              className="bg-[#313133] hover:bg-zinc-700 transition-colors rounded-sm flex flex-col items-center justify-center gap-1.5 border border-zinc-700"
+            >
               <LinkIcon className="w-3.5 h-3.5 text-zinc-300" />
               <span className="text-zinc-300 text-[8px] font-bold tracking-widest uppercase">Copy<br/>Link</span>
             </button>

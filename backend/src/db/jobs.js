@@ -24,6 +24,28 @@ const getById = async (id, workshopId) => {
   });
 };
 
+const getByClientToken = async (clientToken) => {
+  return await prisma.job.findUnique({
+    where: { clientToken },
+    include: {
+      workshop: {
+        select: {
+          name: true,
+        }
+      },
+      updates: {
+        where: { visibility: 'CLIENT' },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          postedBy: {
+            select: { name: true, role: true }
+          }
+        }
+      }
+    }
+  });
+};
+
 const addUpdate = async (jobId, data) => {
   return await prisma.update.create({
     data: {
@@ -37,5 +59,6 @@ module.exports = {
   getAll,
   create,
   getById,
+  getByClientToken,
   addUpdate,
 };
