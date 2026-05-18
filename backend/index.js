@@ -7,6 +7,7 @@ const config = require('./src/config');
 const errorHandler = require('./src/middleware/errorHandler');
 const jobsRouter = require('./src/routes/jobs');
 const authRouter = require('./src/routes/auth');
+const clientRouter = require('./src/routes/client');
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/jobs', jobsRouter);
+app.use('/api/client', clientRouter);
 
 // Global Error Handler Middleware
 app.use(errorHandler);

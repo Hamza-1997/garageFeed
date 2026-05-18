@@ -12,6 +12,10 @@ const getById = async (id, workshopId) => {
   return await jobDb.getById(id, workshopId);
 };
 
+const getByClientToken = async (clientToken) => {
+  return await jobDb.getByClientToken(clientToken);
+};
+
 const addUpdate = async (jobId, data) => {
   return await jobDb.addUpdate(jobId, data);
 };
@@ -20,5 +24,6 @@ module.exports = {
   getAll,
   create,
   getById,
+  getByClientToken,
   addUpdate,
 };

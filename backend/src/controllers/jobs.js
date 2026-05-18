@@ -98,9 +98,26 @@ const create = async (req, res, next) => {
   }
 };
 
+const getClientJob = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    
+    const job = await jobService.getByClientToken(token);
+    
+    if (!job) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    
+    res.json({ data: job });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getAll,
   getOne,
   create,
   addUpdate,
+  getClientJob,
 };
