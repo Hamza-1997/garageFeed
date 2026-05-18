@@ -21,9 +21,12 @@ export function CreateProjectForm() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Mocking upload by creating local Object URL for instant preview
-      const url = URL.createObjectURL(file);
-      setImageUrl(url);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        setImageUrl(base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
