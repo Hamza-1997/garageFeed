@@ -26,7 +26,7 @@ export function useProjectUpdates(projectId: string) {
         projectId: u.jobId,
         title: u.title,
         text: u.message,
-        fileUrl: u.mediaUrl || undefined,
+        images: u.mediaUrl ? [u.mediaUrl] : undefined,
         cost: u.costLogged ? `$${parseFloat(u.costLogged).toFixed(2)}` : undefined,
         createdAt: u.createdAt,
       })) as Update[];
@@ -43,8 +43,9 @@ export function useAddUpdate() {
       const payload = {
         title: newUpdate.title,
         message: newUpdate.text,
-        mediaUrl: newUpdate.fileUrl,
+        mediaUrl: newUpdate.images?.[0] || newUpdate.fileUrl,
         costLogged: newUpdate.cost ? newUpdate.cost.replace(/[^0-9.]/g, '') : undefined,
+        visibility: newUpdate.visibility,
       };
       const response = await api.post(`/api/jobs/${newUpdate.projectId}/updates`, payload);
       return response.data;
