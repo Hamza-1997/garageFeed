@@ -26,5 +26,8 @@
   },
   "prisma": {
     "seed": "node prisma/seed.mjs"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.3"
   }
 }
