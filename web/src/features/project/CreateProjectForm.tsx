@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { User, CarFront, ArrowRight, ShieldCheck, Cloud, Camera, X } from "lucide-react";
 
+import { compressAndUploadImage } from "@/lib/upload";
+
 export function CreateProjectForm() {
   const [clientName, setClientName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -14,19 +16,27 @@ export function CreateProjectForm() {
   const [workRequired, setWorkRequired] = useState("");
   const [status, setStatus] = useState<"WAITING" | "IN_ASSEMBLY" | "WAITING_FOR_PARTS" | "METAL_WORK" | "QC" | "COMPLETED">("WAITING");
   const [imageUrl, setImageUrl] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
 
   const createProject = useCreateProject();
   const router = useRouter();
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setImageUrl(base64String);
-      };
-      reader.readAsDataURL(file);
+      const preview = URL.createObjectURL(file);
+      setImagePreview(preview);
+      setIsUploading(true);
+      try {
+        const key = await compressAndUploadImage(file);
+        setImageUrl(key);
+      } catch (error: any) {
+        setImagePreview("");
+        alert(error.message || 'Failed to upload image. Please try again.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -207,26 +217,30 @@ export function CreateProjectForm() {
                 Hero Photo (Optional)
               </label>
 
-              {imageUrl ? (
+              {imagePreview ? (
                 <div className="relative h-[180px] bg-black rounded-[2px] overflow-hidden border border-[#2a2a2c]">
-                  <img src={imageUrl} alt="Uploaded preview" className="w-full h-full object-cover opacity-80" />
+                  <img src={imagePreview} alt="Uploaded preview" className="w-full h-full object-cover opacity-80" />
                   <button
                     type="button"
-                    onClick={() => setImageUrl("")}
+                    onClick={() => {
+                      setImageUrl("");
+                      setImagePreview("");
+                    }}
                     className="absolute top-2 right-2 w-7 h-7 bg-[#990f02] flex items-center justify-center rounded-[2px] shadow-md hover:bg-red-700"
                   >
                     <X className="w-4 h-4 text-white" strokeWidth={3} />
                   </button>
                 </div>
               ) : (
-                <label className="border border-dashed border-zinc-700 bg-[#111111] flex flex-col items-center justify-center h-[120px] rounded-[2px] cursor-pointer hover:bg-zinc-900/50 transition-colors">
+                <label className={`border border-dashed border-zinc-700 bg-[#111111] flex flex-col items-center justify-center h-[120px] rounded-[2px] transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-zinc-900/50'}`}>
                   <Camera className="w-5 h-5 text-zinc-500 mb-2" />
-                  <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Select Memory/Upload</span>
+                  <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">{isUploading ? 'Uploading...' : 'Select Memory/Upload'}</span>
                   <input 
                     type="file" 
-                    accept="image/*" 
+                    accept="image/jpeg, image/png, image/webp" 
                     className="hidden" 
                     onChange={handleImageUpload}
+                    disabled={isUploading}
                   />
                 </label>
               )}
@@ -237,18 +251,20 @@ export function CreateProjectForm() {
         <div className="pt-4">
           <button
             type="submit"
-            disabled={createProject.isPending}
-            className="w-full h-[88px] bg-[#fdbda1] text-[#541b0b] font-bold tracking-[0.25em] uppercase flex items-center justify-center group hover:bg-white transition-colors duration-300 px-6 relative"
+            disabled={createProject.isPending || isUploading}
+            className={`w-full h-[88px] bg-[#fdbda1] text-[#541b0b] font-bold tracking-[0.25em] uppercase flex items-center justify-center group transition-colors duration-300 px-6 relative ${(createProject.isPending || isUploading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white'}`}
           >
             <span className="text-[13px] leading-[1.6] text-center mt-1">
-              {createProject.isPending ? "Registering..." : "Register New"}
-              {!createProject.isPending && <br />}
-              {!createProject.isPending && "Build"}
+              {createProject.isPending ? "Registering..." : isUploading ? "Uploading..." : "Register New"}
+              {!createProject.isPending && !isUploading && <br />}
+              {!createProject.isPending && !isUploading && "Build"}
             </span>
-            <ArrowRight
-              className="w-5 h-5 absolute right-6 group-hover:translate-x-1 transition-transform"
-              strokeWidth={2.5}
-            />
+            {!createProject.isPending && !isUploading && (
+              <ArrowRight
+                className="w-5 h-5 absolute right-6 group-hover:translate-x-1 transition-transform"
+                strokeWidth={2.5}
+              />
+            )}
           </button>
         </div>
 

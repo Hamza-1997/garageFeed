@@ -7,6 +7,8 @@ import { useProject } from '@/features/project/useProjects';
 import { Eye, Wand2, Camera, X } from 'lucide-react';
 import Link from 'next/link';
 
+import { compressAndUploadImage } from '@/lib/upload';
+
 interface AddUpdateFormProps {
   projectId: string;
 }
@@ -16,21 +18,26 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
   const [text, setText] = useState('');
   const [cost, setCost] = useState('');
   const [visibility, setVisibility] = useState<'CLIENT' | 'INTERNAL'>('CLIENT');
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<{key: string, preview: string}[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const { data: project } = useProject(projectId);
   const addUpdate = useAddUpdate();
   const router = useRouter();
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        setImages([...images, base64String]);
-      };
-      reader.readAsDataURL(file);
+      const preview = URL.createObjectURL(file);
+      setIsUploading(true);
+      try {
+        const key = await compressAndUploadImage(file);
+        setImages(prev => [...prev, { key, preview }]);
+      } catch (error: any) {
+        alert(error.message || 'Failed to upload image. Please try again.');
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
@@ -43,7 +50,7 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
         projectId, 
         title,
         text: text || 'Uploaded photo update.',
-        images: images.length > 0 ? images : undefined,
+        images: images.length > 0 ? images.map(img => img.key) : undefined,
         cost: cost || undefined,
         visibility
       },
@@ -159,14 +166,15 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
         </div>
 
         {/* Photo Upload Area */}
-        <label className="border border-dashed border-zinc-700 bg-[#161618] flex flex-col items-center justify-center h-48 rounded-[2px] cursor-pointer hover:bg-zinc-900 transition-colors mt-4">
+        <label className={`border border-dashed border-zinc-700 bg-[#161618] flex flex-col items-center justify-center h-48 rounded-[2px] mt-4 transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-zinc-900'}`}>
           <Camera className="w-6 h-6 text-zinc-500 mb-3" />
-          <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">Upload Photo</span>
+          <span className="text-zinc-500 text-[9px] uppercase font-bold tracking-widest">{isUploading ? 'Uploading...' : 'Upload Photo'}</span>
           <input 
             type="file" 
-            accept="image/*" 
+            accept="image/jpeg, image/png, image/webp" 
             className="hidden" 
             onChange={handleImageUpload}
+            disabled={isUploading}
           />
         </label>
 
@@ -175,7 +183,7 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
           <div className="space-y-4">
             {images.map((img, idx) => (
               <div key={idx} className="relative h-[200px] bg-black rounded-sm overflow-hidden border border-[#2a2a2c]">
-                <img src={img} alt="Uploaded" className="w-full h-full object-cover opacity-80" />
+                <img src={img.preview} alt="Uploaded" className="w-full h-full object-cover opacity-80" />
                 <button
                   type="button"
                   onClick={() => removeImage(idx)}
@@ -192,11 +200,11 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
         <div className="pt-6">
           <button
             type="submit"
-            disabled={addUpdate.isPending}
-            className="w-full h-[64px] bg-[#fdbda1] text-[#541b0b] font-black tracking-[0.2em] uppercase flex items-center justify-center gap-2 group hover:bg-white transition-colors duration-300 rounded-[2px]"
+            disabled={addUpdate.isPending || isUploading}
+            className={`w-full h-[64px] bg-[#fdbda1] text-[#541b0b] font-black tracking-[0.2em] uppercase flex items-center justify-center gap-2 group transition-colors duration-300 rounded-[2px] ${(addUpdate.isPending || isUploading) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white'}`}
           >
-            <span className="text-[12px] leading-none mt-[2px]">{addUpdate.isPending ? 'Posting...' : 'Post Update'}</span>
-            {!addUpdate.isPending && (
+            <span className="text-[12px] leading-none mt-[2px]">{addUpdate.isPending ? 'Posting...' : isUploading ? 'Wait for upload...' : 'Post Update'}</span>
+            {!addUpdate.isPending && !isUploading && (
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-1 transition-transform">
                 <path d="M5 12h14"></path>
                 <path d="M12 5l7 7-7 7"></path>
