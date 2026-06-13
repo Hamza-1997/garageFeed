@@ -1,13 +1,13 @@
 require('dotenv').config();
 const logger = require('../lib/logger');
 
-const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = process.env.NODE_ENV === 'production';
 
 const config = {
   env: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT) || 3000,
   jwtSecret: process.env.JWT_SECRET,
-  databaseUrl: isProduction ? process.env.DATABASE_URL_PROD : process.env.DATABASE_URL,
+  databaseUrl: process.env.DATABASE_URL,
   frontendUrl: process.env.FRONTEND_URL,
   sentryDsn: process.env.SENTRY_DSN,
   aws: {
