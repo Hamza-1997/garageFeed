@@ -55,4 +55,6 @@ app.use(errorHandler);
 const PORT = config.port || 3000;
 app.listen(PORT, () => {
   logger.info(`Server is running on port ${PORT}`);
+  logger.info(`Frontend URL: ${config.frontendUrl}`);
+  logger.info(`Allowed Origins: ${allowedOrigins}`);
 });
