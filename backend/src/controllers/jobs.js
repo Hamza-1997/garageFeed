@@ -1,9 +1,26 @@
 const jobService = require('../services/jobs');
+const uploadService = require('../services/upload');
+
+const signJobImages = async (job) => {
+  if (!job) return job;
+  if (job.imageUrl) {
+    job.imageUrl = await uploadService.generateGetPresignedUrl(job.imageUrl);
+  }
+  if (job.updates && job.updates.length > 0) {
+    await Promise.all(job.updates.map(async (update) => {
+      if (update.mediaUrl) {
+        update.mediaUrl = await uploadService.generateGetPresignedUrl(update.mediaUrl);
+      }
+    }));
+  }
+  return job;
+};
 
 const getAll = async (req, res, next) => {
   try {
     const jobs = await jobService.getAll();
-    res.json({ data: jobs });
+    const signedJobs = await Promise.all(jobs.map(signJobImages));
+    res.json({ data: signedJobs });
   } catch (error) {
     next(error);
   }
@@ -20,7 +37,8 @@ const getOne = async (req, res, next) => {
       return res.status(404).json({ message: 'Job not found' });
     }
     
-    res.json({ data: job });
+    const signedJob = await signJobImages(job);
+    res.json({ data: signedJob });
   } catch (error) {
     next(error);
   }
@@ -52,6 +70,10 @@ const addUpdate = async (req, res, next) => {
       visibility: visibility || 'CLIENT',
       postedById
     });
+
+    if (newUpdate.mediaUrl) {
+      newUpdate.mediaUrl = await uploadService.generateGetPresignedUrl(newUpdate.mediaUrl);
+    }
 
     res.status(201).json({ data: newUpdate, message: 'Update added successfully' });
   } catch (error) {
@@ -92,7 +114,8 @@ const create = async (req, res, next) => {
       workshopId
     });
 
-    res.status(201).json({ data: newJob, message: 'Job created successfully' });
+    const signedJob = await signJobImages(newJob);
+    res.status(201).json({ data: signedJob, message: 'Job created successfully' });
   } catch (error) {
     next(error);
   }
@@ -108,7 +131,8 @@ const getClientJob = async (req, res, next) => {
       return res.status(404).json({ message: 'Project not found' });
     }
     
-    res.json({ data: job });
+    const signedJob = await signJobImages(job);
+    res.json({ data: signedJob });
   } catch (error) {
     next(error);
   }

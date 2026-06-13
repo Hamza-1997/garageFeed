@@ -8,6 +8,7 @@ const errorHandler = require('./src/middleware/errorHandler');
 const jobsRouter = require('./src/routes/jobs');
 const authRouter = require('./src/routes/auth');
 const clientRouter = require('./src/routes/client');
+const uploadRouter = require('./src/routes/upload');
 
 const app = express();
 
@@ -28,15 +29,25 @@ process.on('unhandledRejection', (reason, promise) => {
   Sentry.captureException(reason);
   process.exit(1);
 });
+const allowedOrigins = [
+  'http://localhost:3000',
+  ...(config.frontendUrl ? [config.frontendUrl] : []),
+];
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Routes
 app.use('/api/auth', authRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/client', clientRouter);
+app.use('/api/upload', uploadRouter);
 
 // Global Error Handler Middleware
 app.use(errorHandler);
