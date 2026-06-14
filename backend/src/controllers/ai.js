@@ -24,6 +24,7 @@ const transcribeAudio = async (req, res, next) => {
       file: fs.createReadStream(newPath),
       model: "whisper-large-v3-turbo", 
       response_format: "json",
+      language: "en",
     });
 
     // Clean up the temporary local file
