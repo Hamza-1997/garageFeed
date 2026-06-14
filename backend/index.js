@@ -9,6 +9,7 @@ const jobsRouter = require('./src/routes/jobs');
 const authRouter = require('./src/routes/auth');
 const clientRouter = require('./src/routes/client');
 const uploadRouter = require('./src/routes/upload');
+const aiRouter = require('./src/routes/ai');
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/jobs', jobsRouter);
 app.use('/api/client', clientRouter);
 app.use('/api/upload', uploadRouter);
+app.use('/api/ai', aiRouter);
 
 // Global Error Handler Middleware
 app.use(errorHandler);

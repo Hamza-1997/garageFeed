@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAddUpdate } from './useUpdates';
 import { useProject } from '@/features/project/useProjects';
-import { Eye, Wand2, Camera, X } from 'lucide-react';
+import { Eye, Wand2, Camera, X, Mic, Square, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { compressAndUploadImage } from '@/lib/upload';
+import { api } from '@/lib/api';
 
 interface AddUpdateFormProps {
   projectId: string;
@@ -20,10 +21,68 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
   const [visibility, setVisibility] = useState<'CLIENT' | 'INTERNAL'>('CLIENT');
   const [images, setImages] = useState<{key: string, preview: string}[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<BlobPart[]>([]);
 
   const { data: project } = useProject(projectId);
   const addUpdate = useAddUpdate();
   const router = useRouter();
+
+  const handleTranscription = async (audioBlob: Blob) => {
+    setIsTranscribing(true);
+    try {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'audio.webm'); 
+
+      const response = await api.post('/api/ai/transcribe', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      const data = response.data;
+      setText(prev => prev ? `${prev}\n\n${data.text}` : data.text);
+    } catch (error) {
+      alert("Failed to transcribe audio.");
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        await handleTranscription(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+    } catch (error) {
+      alert("Microphone access denied or unavailable.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -139,10 +198,29 @@ export function AddUpdateForm({ projectId }: AddUpdateFormProps) {
         {/* Text Area Card */}
         <div className="flex items-end justify-between mb-2 mt-4">
           <span className="text-zinc-500 text-[8px] uppercase font-bold tracking-[0.2em]">Technical Notes & Progress</span>
-          <button type="button" className="bg-[#ffcc00] text-black h-6 px-3 flex items-center gap-1.5 rounded-[2px] shadow-md hover:bg-yellow-400">
-            <Wand2 className="w-3 h-3" strokeWidth={3} />
-            <span className="text-[8px] font-black tracking-widest uppercase">AI Polish</span>
-          </button>
+          <div className="flex gap-2">
+            <button 
+              type="button" 
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={isTranscribing}
+              className={`h-6 px-3 flex items-center gap-1.5 rounded-[2px] shadow-md transition-colors ${
+                isRecording 
+                  ? 'bg-red-500 hover:bg-red-600 text-white animate-pulse' 
+                  : isTranscribing
+                    ? 'bg-[#1e3640] text-[#4d7b8c] cursor-not-allowed'
+                    : 'bg-[#2b4c59] text-[#93c5d6] hover:bg-[#1e3640]'
+              }`}
+            >
+              {isRecording ? <Square className="w-3 h-3" /> : isTranscribing ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mic className="w-3 h-3" />}
+              <span className="text-[8px] font-black tracking-widest uppercase">
+                {isRecording ? 'Stop' : isTranscribing ? 'Transcribing' : 'Voice Note'}
+              </span>
+            </button>
+            <button type="button" className="bg-[#ffcc00] text-black h-6 px-3 flex items-center gap-1.5 rounded-[2px] shadow-md hover:bg-yellow-400">
+              <Wand2 className="w-3 h-3" strokeWidth={3} />
+              <span className="text-[8px] font-black tracking-widest uppercase">AI Polish</span>
+            </button>
+          </div>
         </div>
         
         <textarea
